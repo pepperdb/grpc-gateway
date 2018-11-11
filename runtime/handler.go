@@ -139,8 +139,18 @@ func ForwardResponseMessage(ctx context.Context, mux *ServeMux, marshaler Marsha
 		return
 	}
 
+	if _, err = w.Write([]byte("{\"result\":")); err != nil {
+		grpclog.Printf("Failed to send response chunk: %v", err)
+		return
+	}
+
 	if _, err = w.Write(buf); err != nil {
 		grpclog.Infof("Failed to write response: %v", err)
+	}
+
+	if _, err = w.Write([]byte("}")); err != nil {
+		grpclog.Printf("Failed to send response chunk: %v", err)
+		return
 	}
 
 	handleForwardResponseTrailer(w, md)
